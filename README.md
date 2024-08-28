@@ -69,14 +69,13 @@ This `README.md` should serve as a helpful guide for anyone setting up or using 
 The service exposes the following RESTful endpoints:
 
 - GET /api/players: Returns the list of all players
-   - this endpoint also support sending pagination params:
+   - **this service handles default of max limit=200 per request and also manage validation on page values**
 
         ```bash
          http://localhost:8080/api/players
          or
          http://localhost:8080/api/players?page=10&limit=100
 
-**this service handles default of max limit=200 per request and also manage validation on page values**
 
 - GET /api/players/{playerID}: Returns a single player by their ID.
    ```bash
