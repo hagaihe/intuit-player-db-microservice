@@ -1,4 +1,3 @@
-
 from aiohttp import web
 
 from app.db_handler import players_db

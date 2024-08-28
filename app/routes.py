@@ -1,4 +1,3 @@
-
 from app.api import get_all_players, get_player_by_id, health_check
 
 

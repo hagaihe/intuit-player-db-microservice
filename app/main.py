@@ -1,8 +1,7 @@
 import logging
-
 from aiohttp import web
-from app.routes import setup_routes
 from app.db_handler import players_db
+from app.routes import setup_routes
 
 
 async def init_app():

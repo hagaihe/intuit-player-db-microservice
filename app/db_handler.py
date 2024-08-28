@@ -63,31 +63,31 @@ class AsyncPlayerDatabase:
                 return None
 
     async def get_players_paginated(self, page: int, limit: int):
-            """generator that yields players in a paginated mechanism"""
-            if limit > self._max_limit:
-                logging.error(f"Invalid 'limit' value: {limit}. set to default max: {self._max_limit}.")
-                limit = self._max_limit
+        """generator that yields players in a paginated mechanism"""
+        if limit > self._max_limit:
+            logging.error(f"Invalid 'limit' value: {limit}. set to default max: {self._max_limit}.")
+            limit = self._max_limit
 
-            # calculate maximum possible page number based on total records and limit
-            # using ceiling division for last page calculation
-            max_page = (self.total_count + limit - 1) // limit
-            if page < 1 or page > max_page:
-                logging.error(f"Invalid 'page' value: {page}. Total pages available: {max_page}.")
-                raise ValueError(f"Invalid 'page' value. Must be between 1 and {max_page}.")
+        # calculate maximum possible page number based on total records and limit
+        # using ceiling division for last page calculation
+        max_page = (self.total_count + limit - 1) // limit
+        if page < 1 or page > max_page:
+            logging.error(f"Invalid 'page' value: {page}. Total pages available: {max_page}.")
+            raise ValueError(f"Invalid 'page' value. Must be between 1 and {max_page}.")
 
-            start = (page - 1) * limit
-            end = start + limit
+        start = (page - 1) * limit
+        end = start + limit
 
-            async with self._lock:  # ensure safe concurrent access
-                await asyncio.sleep(0)  # yield control to the event loop
-                with open(self._csv_path, newline='') as csvfile:
-                    reader = csv.DictReader(csvfile)
-                    # reader assumes csvfile has headers
-                    for idx, row in enumerate(reader):
-                        if start <= idx < end:
-                            yield row
-                        elif idx >= end:
-                            break  # stop once we've fetched the required slice
+        async with self._lock:  # ensure safe concurrent access
+            await asyncio.sleep(0)  # yield control to the event loop
+            with open(self._csv_path, newline='') as csvfile:
+                reader = csv.DictReader(csvfile)
+                # reader assumes csvfile has headers
+                for idx, row in enumerate(reader):
+                    if start <= idx < end:
+                        yield row
+                    elif idx >= end:
+                        break  # stop once we've fetched the required slice
 
 
 # AsyncPlayerDatabase instantiation only
