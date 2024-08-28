@@ -47,7 +47,7 @@ python app/main.py
 docker build -t player-db-microservice .
 
 - Run the Docker Container: ```bash
-docker run -p 8080: 8080 player-db-microservice
+docker run -d -p 8080: 8080 player-db-microservice
 
 This will build the Docker image from the Dockerfile and run the service on port 8080.
 

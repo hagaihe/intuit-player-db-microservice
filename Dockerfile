@@ -1,15 +1,18 @@
-# official Python runtime
+# Use a slim version of Python
 FROM python:3.10-slim
 
-# define working directory in the container
+# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# copy & install requirements into the container
+# Copy the requirements file and install dependencies
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# copy the rest of the application into the container
+# Copy the rest of the application code
 COPY . .
 
-# application entry point
+# Set PYTHONPATH to include the working directory
+ENV PYTHONPATH=/usr/src/app
+
+# Run the application
 CMD ["python", "app/main.py"]
