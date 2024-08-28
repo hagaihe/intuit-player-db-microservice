@@ -30,13 +30,15 @@ This `README.md` should serve as a helpful guide for anyone setting up or using 
    cd player_db_microservice
 
 2. Create a virtual environment and activate it:
-   For Windows:
+   - For Windows:
+
    ```bash
    Copy code
    python -m venv venv
    venv\Scripts\activate
 
-   For macOS:
+   - For macOS:
+
    ```bash
    Copy code
    python3 -m venv venv
