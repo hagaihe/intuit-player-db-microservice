@@ -76,13 +76,11 @@ The service exposes the following RESTful endpoints:
          or
          http://localhost:8080/api/players?page=10&limit=100
 
-      **this service handles default of max limit=200 per request and also manage validation on
-   page values**
+**this service handles default of max limit=200 per request and also manage validation on page values**
 
 - GET /api/players/{playerID}: Returns a single player by their ID.
    ```bash
    http://localhost:8080/api/players/abadijo01
-
 
 
 
