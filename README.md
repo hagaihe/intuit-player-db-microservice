@@ -30,12 +30,13 @@ This `README.md` should serve as a helpful guide for anyone setting up or using 
    cd player_db_microservice
 
 2. Create a virtual environment and activate it:
-   For Windows:
+
+- For Windows:
    ```bash
    python -m venv venv
    venv\Scripts\activate
 
-   For macOS:
+- For macOS:
    ```bash
    python3 -m venv venv
    source venv/bin/activate
@@ -54,11 +55,11 @@ This `README.md` should serve as a helpful guide for anyone setting up or using 
 
    To run the microservice in a Docker container, follow these steps:
 
-   - Build the Docker Image:
+- Build the Docker Image:
    ```bash
    docker build -t player-db-microservice .
 
-   - Run the Docker Container:
+- Run the Docker Container:
    ```bash
    docker run -p 8080:8080 player-db-microservice
 
