@@ -1,4 +1,3 @@
-
 from unittest.mock import patch, AsyncMock
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
@@ -57,5 +56,3 @@ class TestApiHandlers(AioHTTPTestCase):
         mock_get_player.return_value = None
         resp = await self.client.request('GET', '/api/players/p3')
         self.assertEqual(resp.status, 404)
-
-

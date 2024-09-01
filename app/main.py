@@ -21,6 +21,7 @@ async def init_app():
 
     # load the players data to memory
     try:
+        logger.info("loading players db to memory...")
         await players_db.load_players('data/players.csv')
     except Exception as e:
         logger.critical(f"Failed to load players data: {e}")

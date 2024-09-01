@@ -1,94 +1,79 @@
 import asyncio
-import csv
 import logging
 import os
+from app.abstract_db_handler import AbstractAsyncPlayerDatabase
 
 
-class AsyncPlayerDatabase:
+class AsyncPlayerCSVDatabase(AbstractAsyncPlayerDatabase):
     def __init__(self):
-        self._data = {}
+        super().__init__()
         self._csv_path = None
-        self._lock = asyncio.Lock()  # lock to handle concurrent read/write access
-        self.total_count = 0
-        self._index = {}  # index mapping playerID to position in file
-        self._max_limit = 200  # set a benchmark maximum limit for page size
+        self._index = {}
 
     async def load_players(self, csv_path='data/players.csv'):
-        # resolve the db path relative to the current running point
+        """Loads players from a CSV file and build an index"""
         self._csv_path = os.path.join(os.path.dirname(__file__), '..', csv_path)
+        logging.info(f"build players index from {self._csv_path}")
         if not os.path.exists(self._csv_path):
-            raise FileNotFoundError(f"source db file '{self._csv_path}' does not exist.")
-
-        # calc the no' of players available in the db
+            raise FileNotFoundError(f"Source db file '{self._csv_path}' does not exist.")
         await self._build_index_and_count()
 
     async def _build_index_and_count(self):
-        """build an index of player IDs to file positions and count total records using a generator."""
+        """build an index of player IDs to file positions and count total records"""
         async with self._lock:
             await asyncio.sleep(0)  # yield control to the event loop
             try:
-                # Use the generator to build the index and count records in one pass
-                async for player_id, position in self._index_generator():
-                    self._index[player_id] = position
-                    self.total_count += 1
+                with open(self._csv_path, mode='r', encoding='utf-8') as csvfile:
+                    # Read the header and clean each element
+                    raw_header = csvfile.readline().strip()
+                    self.header = [col.strip() for col in raw_header.split(',')]
+                    while True:
+                        # store the start position of each line
+                        line_start_pos = csvfile.tell()
+                        line = csvfile.readline().strip()
+                        if not line:  # end of file
+                            break
+                        row = [value.strip() for value in line.split(',')]
+                        player_id = row[self.header.index('playerID')]
+                        self._index[player_id] = line_start_pos
+                        self.total_count += 1
             except Exception as e:
                 logging.exception(f"Error while indexing & counting player records: {e}")
                 raise e
 
-    async def _index_generator(self):
-        """generator to yield player IDs and their positions in the file."""
+    async def _get_player_by_id(self, player_id):
+        """retrieve a player by ID using the index for fast access"""
+        if player_id not in self._index:
+            return None
         try:
-            position = 0
-            with open(self._csv_path, newline='') as csvfile:
-                reader = csv.DictReader(csvfile)
-                for row in reader:
-                    yield row['playerID'], position  # yield the playerID and its position
-                    position += 1  # update position after reading the line
+            with open(self._csv_path, mode='r', encoding='utf-8') as csvfile:
+                # Seek to the position in the file where the record starts
+                csvfile.seek(self._index[player_id])
+                line = csvfile.readline().strip()
+                row = [value.strip() for value in line.split(',')]
+                return dict(zip(self.header, row))
         except Exception as e:
-            logging.exception(f"Error reading from CSV file: {e}")
+            logging.exception(f"Error while fetching player by ID: {e}")
             raise e
 
-    async def get_player_by_id(self, player_id):
-        """retrieve a player by ID using the index for fast access."""
-        async with self._lock:
-            if player_id not in self._index:
-                return None
-            try:
-                with open(self._csv_path, newline='') as csvfile:
-                    csvfile.seek(self._index[player_id])  # Go directly to the line's position
-                    reader = csv.DictReader(csvfile)
-                    return next(reader)  # Read the line
-            except Exception as e:
-                logging.exception(f"Error retrieving player by ID: {e}")
-                return None
+    async def _get_players_paginated(self, start: int, end: int):
+        """fetch player records within the specified range"""
+        try:
+            with open(self._csv_path, mode='r', encoding='utf-8') as csvfile:
+                # skip the header
+                csvfile.readline()
 
-    async def get_players_paginated(self, page: int, limit: int):
-        """generator that yields players in a paginated mechanism using the index"""
-        if limit > self._max_limit:
-            logging.error(f"Invalid 'limit' value: {limit}. set to default max: {self._max_limit}.")
-            limit = self._max_limit
-
-        # calculate the maximum possible page number based on total records and limit
-        max_page = (self.total_count + limit - 1) // limit
-        if page < 1 or page > max_page:
-            logging.error(f"Invalid 'page' value: {page}. Total pages available: {max_page}.")
-            raise ValueError(f"Invalid 'page' value. Must be between 1 and {max_page}.")
-
-        start = (page - 1) * limit
-        end = start + limit
-
-        # fetch by player IDs from the index within the requested range
-        player_ids = list(self._index.keys())[start:end]
-
-        async with self._lock:  # ensure safe concurrent access
-            await asyncio.sleep(0)  # yield control to the event loop
-            with open(self._csv_path, newline='') as csvfile:
-                reader = csv.DictReader(csvfile)
-                for player_id in player_ids:
-                    # move to the correct position in the file using the index
-                    csvfile.seek(self._index[player_id])
-                    yield next(reader)
+                for i in range(self.total_count):
+                    line_start_pos = csvfile.tell()
+                    line = csvfile.readline().strip()
+                    if start <= i < end:
+                        row = [value.strip() for value in line.split(',')]
+                        yield dict(zip(self.header, row))  # yield each player record as a dict
+                    if i >= end:
+                        break
+        except Exception as e:
+            logging.exception(f"Error retrieving {end - start} players from index {start} to {end}: {e}")
+            raise e
 
 
-# AsyncPlayerDatabase instantiation only
-players_db = AsyncPlayerDatabase()
+players_db = AsyncPlayerCSVDatabase()

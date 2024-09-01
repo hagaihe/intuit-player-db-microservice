@@ -1,5 +1,5 @@
+import logging
 from aiohttp import web
-
 from app.csv_db_handler import players_db
 
 
@@ -35,6 +35,7 @@ async def get_all_players(request):
         return web.json_response(response)
 
     except Exception as e:
+        logging.exception("failed to fetch players")
         return web.json_response({'error': str(e)}, status=400)
 
 
