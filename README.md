@@ -27,11 +27,17 @@ This `README.md` should serve as a helpful guide for anyone setting up or using 
 git clone https://github.com/hagaihe/player_db_microservice.git
 cd player_db_microservice
 
-2. Create a virtual environment and activate it: - For Windows: ```bash
+2. Create a virtual environment and activate it:
+
+- For Windows:
+
+```bash
 python -m venv venv
 venv\Scripts\activate
 
-- For macOS: ```bash
+- For macOS:
+
+```bash
 python3 -m venv venv
 source venv/bin/activate
 

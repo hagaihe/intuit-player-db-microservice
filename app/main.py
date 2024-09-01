@@ -1,6 +1,6 @@
 import logging
 from aiohttp import web
-from app.db_handler import players_db
+from app.csv_db_handler import players_db
 from app.routes import setup_routes
 
 

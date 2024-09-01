@@ -3,7 +3,7 @@ from unittest.mock import patch, AsyncMock
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
 from app.api import get_all_players, get_player_by_id, health_check
-from app.db_handler import players_db
+from app.csv_db_handler import players_db
 
 
 class TestApiHandlers(AioHTTPTestCase):

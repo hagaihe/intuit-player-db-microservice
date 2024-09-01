@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, mock_open
-from app.db_handler import AsyncPlayerDatabase
+from app.csv_db_handler import AsyncPlayerDatabase
 
 
 class TestAsyncPlayerDatabase(unittest.IsolatedAsyncioTestCase):

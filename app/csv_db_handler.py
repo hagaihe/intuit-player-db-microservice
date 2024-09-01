@@ -63,13 +63,12 @@ class AsyncPlayerDatabase:
                 return None
 
     async def get_players_paginated(self, page: int, limit: int):
-        """generator that yields players in a paginated mechanism"""
+        """generator that yields players in a paginated mechanism using the index"""
         if limit > self._max_limit:
             logging.error(f"Invalid 'limit' value: {limit}. set to default max: {self._max_limit}.")
             limit = self._max_limit
 
-        # calculate maximum possible page number based on total records and limit
-        # using ceiling division for last page calculation
+        # calculate the maximum possible page number based on total records and limit
         max_page = (self.total_count + limit - 1) // limit
         if page < 1 or page > max_page:
             logging.error(f"Invalid 'page' value: {page}. Total pages available: {max_page}.")
@@ -78,16 +77,17 @@ class AsyncPlayerDatabase:
         start = (page - 1) * limit
         end = start + limit
 
+        # fetch by player IDs from the index within the requested range
+        player_ids = list(self._index.keys())[start:end]
+
         async with self._lock:  # ensure safe concurrent access
             await asyncio.sleep(0)  # yield control to the event loop
             with open(self._csv_path, newline='') as csvfile:
                 reader = csv.DictReader(csvfile)
-                # reader assumes csvfile has headers
-                for idx, row in enumerate(reader):
-                    if start <= idx < end:
-                        yield row
-                    elif idx >= end:
-                        break  # stop once we've fetched the required slice
+                for player_id in player_ids:
+                    # move to the correct position in the file using the index
+                    csvfile.seek(self._index[player_id])
+                    yield next(reader)
 
 
 # AsyncPlayerDatabase instantiation only
