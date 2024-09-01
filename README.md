@@ -9,7 +9,6 @@ The Player DB Microservice is a RESTful service built with `aiohttp` and `asynci
 
 1. **Setup Instructions**: Provides clear steps to install dependencies, run the service locally, or use Docker.
 2. **API Usage**: Detailed instructions for using endpoints with Postman and `curl`, ensuring ease of testing.
-3. **Error Handling**: Includes common errors and solutions to guide users through troubleshooting.
 
 This `README.md` should serve as a helpful guide for anyone setting up or using your microservice, ensuring they can quickly test and interact with the service endpoints.
 
